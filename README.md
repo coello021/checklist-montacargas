@@ -39,7 +39,7 @@ La URL y la clave publishable de Supabase pueden estar en el frontend; la protec
 
 - La versión original guardaba registros en `localStorage` o JSONBin. Descarga su respaldo JSON desde la versión original e impórtalo desde **Registros > Importar respaldo JSON** con una cuenta autorizada.
 - La importación agrega IDs inexistentes y omite IDs duplicados; no sobrescribe semanas existentes.
-- Esta versión consulta Supabase al entrar y al pulsar **Actualizar**. El botón **Guardar semana** confirma la escritura antes de decir que guardó.
+- Esta versión consulta Supabase al entrar y al pulsar **Actualizar**. El botón **Guardar semana** exige inspector, sucursal, unidad, inicio y fin de semana válidos y al menos una casilla C o NC. Permite guardar una revisión parcial, que aparece como **En proceso**. Confirma la escritura antes de decir que guardó.
 - Si otra persona guardó la misma semana, se rechaza la versión antigua. Pulsa **Actualizar**, abre la versión reciente y revisa los cambios. Los cambios que no habías guardado no se combinan automáticamente.
 - Crear **Nueva semana** siempre crea otro ID; una unidad y fecha repetidas no se fusionan automáticamente.
 - Excel depende de la biblioteca XLSX cargada desde CDN; las fuentes de Google también requieren internet.
