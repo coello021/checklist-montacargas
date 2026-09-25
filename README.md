@@ -1,6 +1,6 @@
 # Check list de montacargas
 
-Sitio estático para GitHub Pages, con inspecciones compartidas en Supabase. La interfaz original está separada en HTML, CSS y JavaScript. El sitio está publicado en https://coello021.github.io/checklist-montacargas/ y conectado al proyecto Supabase `checklist-montacargas`. El esquema SQL se aplicó y existe una cuenta inicial autorizada como `operator`. El guardado con una sesión real todavía debe verificarse.
+Sitio estático para GitHub Pages, con inspecciones compartidas en Supabase. La interfaz original está separada en HTML, CSS y JavaScript. El sitio está publicado en https://coello021.github.io/checklist-montacargas/ y conectado al proyecto Supabase `checklist-montacargas`. El esquema SQL se aplicó y existe una cuenta inicial autorizada como `operator`. El 25 de septiembre de 2026 se verificaron el inicio de sesión, el guardado de un registro de prueba, una actualización con versiones 1 y 2 en el historial y la descarga Excel. El registro de prueba permanece en Supabase con la unidad `UNIDAD DE PRUEBA` y sin casillas marcadas.
 
 ## Estructura
 
