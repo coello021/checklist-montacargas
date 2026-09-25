@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111820">
+<title>Check List de Montacargas · Vidrí</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1"></script>
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="mark">Vidrí</span>
+    <h1>Check List de Montacargas</h1>
+  </div>
+  <div class="spacer"></div>
+  <button class="pill" id="syncPill" onclick="app.sync(true)"><span class="dot"></span><span id="syncTxt">Solo este equipo</span></button>
+</div>
+
+<nav class="tabs">
+  <button class="active" data-view="inspeccion">Inspección</button>
+  <button data-view="registros">Registros</button>
+  <button data-view="ajustes">Ajustes</button>
+</nav>
+
+<div class="wrap">
+
+<!-- ============ INSPECCIÓN ============ -->
+<section class="view active" id="view-inspeccion">
+
+  <div class="plate">
+    <span class="rivet-b" style="left:9px"></span><span class="rivet-b" style="right:9px"></span>
+    <div class="plate-title">Datos de la unidad y la semana</div>
+    <div class="plate-grid">
+      <div class="field"><label>Inspeccionado por</label><input id="m_inspector" placeholder="Nombre del operador"></div>
+      <div class="field"><label>Encargado de bodega</label><input id="m_encargado" placeholder="Nombre"></div>
+      <div class="field"><label>Sucursal o CD</label><input id="m_sucursal" placeholder="CD Nejapa"></div>
+      <div class="field"><label>Marca</label><input id="m_marca" placeholder="Toyota, Hyster…"></div>
+      <div class="field mono"><label>Ubicación / N° de unidad</label><input id="m_ubicacion" placeholder="MC-01"></div>
+      <div class="field mono"><label>Semana del</label><input id="m_semanaDel" type="date"></div>
+      <div class="field mono"><label>Al</label><input id="m_semanaAl" type="date"></div>
+      <div class="field"><label>Mes de</label><input id="m_mes" placeholder="Agosto 2026"></div>
+      <div class="field mono"><label>Hrs inicial</label><input id="m_hrsIni" inputmode="decimal" placeholder="0000.0"></div>
+      <div class="field mono"><label>Hrs final</label><input id="m_hrsFin" inputmode="decimal" placeholder="0000.0"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="daybar" id="daybar"></div>
+    <div class="card-head" style="border-top:1px solid var(--line-soft)">
+      <h2 id="dayTitle">Lunes</h2>
+      <div class="spacer" style="flex:1"></div>
+      <button class="btn sm" onclick="app.markAll('C')">Marcar todo cumple</button>
+      <button class="btn sm" onclick="app.clearDay()">Limpiar día</button>
+    </div>
+    <div id="itemList"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Observaciones y seguimiento</h2></div>
+    <div class="card-body">
+      <div class="f" style="margin-bottom:14px">
+        <label>Observaciones / recomendaciones</label>
+        <textarea id="m_obs" placeholder="Anote hallazgos, repuestos solicitados o acciones tomadas."></textarea>
+      </div>
+      <div class="grid2">
+        <div class="f"><label>Fecha de seguimiento</label><input id="m_segFecha" type="date"></div>
+        <div class="f"><label>Responsable</label><input id="m_segResp" placeholder="Nombre"></div>
+        <div class="f"><label>Gerente o jefe de bodega</label><input id="m_firmaJefe" placeholder="Nombre"></div>
+        <div class="f"><label>Operador de montacargas</label><input id="m_firmaOperador" placeholder="Nombre"></div>
+      </div>
+      <div class="hint">C: Cumple · NC: No cumple. El gerente o jefe de bodega debe verificar que el formato esté totalmente completo. Tener siempre presente el contacto técnico / mecánico. SKU 408716.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REGISTROS ============ -->
+<section class="view" id="view-registros">
+  <div class="card">
+    <div class="card-head">
+      <h2>Semanas guardadas</h2>
+      <div style="flex:1"></div>
+      <input id="filtro" class="btn" style="min-width:190px;font-weight:400" placeholder="Buscar unidad o sucursal" oninput="app.renderRecords()">
+      <button class="btn sm" onclick="app.sync(true)">Actualizar</button>
+    </div>
+    <div id="recList"></div>
+    <div class="card-body" id="historyBox" hidden></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Respaldo</h2></div>
+    <div class="card-body" style="display:flex;gap:9px;flex-wrap:wrap">
+      <button class="btn" onclick="app.exportJSON()">Descargar respaldo JSON</button>
+      <label class="btn" style="cursor:pointer">Importar respaldo JSON<input type="file" accept=".json" hidden onchange="app.importJSON(event)"></label>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AJUSTES ============ -->
+<section class="view" id="view-ajustes">
+  <div class="card">
+    <div class="card-head"><h2>Quién está inspeccionando</h2></div>
+    <div class="card-body">
+      <div class="f"><label>Tu nombre</label><input id="s_usuario" placeholder="Aparecerá en cada registro que guardes"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Trabajo en línea</h2></div>
+    <div class="card-body">
+      <p class="hint" style="margin-top:0;margin-bottom:14px">Inicia sesión con una cuenta autorizada para guardar y consultar las inspecciones compartidas.</p>
+      <div class="grid2">
+        <div class="f"><label>Correo</label><input id="s_email" type="email" autocomplete="username" placeholder="operador@empresa.com"></div>
+        <div class="f"><label>Contraseña</label><input id="s_password" type="password" autocomplete="current-password"></div>
+      </div>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:14px">
+        <button class="btn primary" onclick="app.signIn()">Iniciar sesión</button>
+        <button class="btn danger" onclick="app.signOut()">Cerrar sesión</button>
+      </div>
+      <div class="note" id="authStatus" style="margin-top:14px">Configuración pendiente.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Cómo se comparte</h2></div>
+    <div class="card-body">
+      <p class="hint" style="margin-top:0">Los registros se guardan en Supabase. Cada guardado comprueba la versión del registro; si otra persona lo modificó primero, debes actualizar y revisar los cambios. El botón Historial muestra las versiones guardadas.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="actionbar noprint">
+  <span class="counter" id="counter"></span>
+  <button class="btn" onclick="app.nuevo()">Nueva semana</button>
+  <button class="btn" onclick="app.print()">Imprimir</button>
+  <button class="btn amber" onclick="app.excel()">Excel</button>
+  <button class="btn primary" onclick="app.guardar()">Guardar semana</button>
+</div>
+
+<div id="toast"></div>
+<div id="printArea"></div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/app.js" defer></script>
+</body>
+</html>
