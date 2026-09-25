@@ -194,7 +194,24 @@ const app = {
   /* ---------- guardar y registros ---------- */
   async guardar(){
     if(!this.db || !this.user) { this.tabTo("ajustes"); return this.toast("Inicia sesión para guardar.",true); }
-    if(!this.rec.meta.ubicacion){ this.tabTo("inspeccion"); return this.toast("Escribe la ubicación o número de unidad.",true); }
+    const m=this.rec.meta;
+    for(const [key,label] of [["inspector","quién inspecciona"],["sucursal","la sucursal o CD"],
+                              ["ubicacion","la ubicación o número de unidad"],["semanaDel","el inicio de la semana"],
+                              ["semanaAl","el fin de la semana"]]){
+      if(!String(m[key]||"").trim()){
+        this.tabTo("inspeccion"); return this.toast("Completa "+label+" antes de guardar.",true);
+      }
+    }
+    if(m.semanaAl<m.semanaDel){
+      this.tabTo("inspeccion"); return this.toast("El fin de la semana debe ser igual o posterior al inicio.",true);
+    }
+    const revisado=ITEMS.some((_,i)=>{
+      const it=this.rec.items[i];
+      return it?.aplica!=="NO" && DIAS.some(([d])=>it?.dias?.[d]==="C" || it?.dias?.[d]==="NC");
+    });
+    if(!revisado){
+      this.tabTo("inspeccion"); return this.toast("Revisa al menos una casilla C o NC antes de guardar.",true);
+    }
     const record=JSON.parse(JSON.stringify(this.rec));
     const version=record.version || 0;
     delete record.version;
@@ -271,9 +288,10 @@ const app = {
       let nc=0, hechos=0, aplican=0;
       ITEMS.forEach((_,i)=>{ const it=r.items[i]; if(!it||it.aplica==="NO") return;
         aplican+=7; DIAS.forEach(([k])=>{ if(it.dias[k]) hechos++; if(it.dias[k]==="NC") nc++; }); });
-      const tag = nc ? `<span class="tag bad">${nc} no cumple</span>`
-                     : hechos ? `<span class="tag">Sin hallazgos</span>`
-                              : `<span class="tag grey">Sin datos</span>`;
+      const tag = nc ? `<span class="tag bad">${nc} no cumple · ${hechos}/${aplican}</span>`
+                     : hechos===aplican && aplican>0 ? `<span class="tag">Revisión completa · sin NC</span>`
+                     : hechos ? `<span class="tag grey">En proceso · ${hechos}/${aplican}</span>`
+                              : `<span class="tag grey">Sin revisar</span>`;
       const f = r.meta.semanaDel ? r.meta.semanaDel+" → "+(r.meta.semanaAl||"") : "semana sin fecha";
       return `<div class="rec">
         <div class="rec-main">
