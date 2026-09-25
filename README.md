@@ -1,6 +1,6 @@
 # Check list de montacargas
 
-Sitio estático para GitHub Pages, con inspecciones compartidas en Supabase. La interfaz original está separada en HTML, CSS y JavaScript. No se ha configurado aún una cuenta real ni publicado el sitio.
+Sitio estático para GitHub Pages, con inspecciones compartidas en Supabase. La interfaz original está separada en HTML, CSS y JavaScript. El sitio está publicado en https://coello021.github.io/checklist-montacargas/ y conectado al proyecto Supabase `checklist-montacargas`. El esquema SQL se aplicó y existe una cuenta inicial autorizada como `operator`. El guardado con una sesión real todavía debe verificarse.
 
 ## Estructura
 
@@ -10,7 +10,7 @@ Sitio estático para GitHub Pages, con inspecciones compartidas en Supabase. La 
 - `assets/js/config.js`: URL y clave **publicable** del proyecto Supabase.
 - `supabase/schema.sql`: tablas, historial y reglas de acceso.
 
-## Preparar Supabase
+## Preparar Supabase en otro proyecto
 
 1. Crea un proyecto Supabase. En el **SQL Editor**, ejecuta `supabase/schema.sql` una vez. Hazlo en un proyecto nuevo; el script crea tablas y políticas.
 2. En **Authentication > Users**, crea las cuentas de los operadores. No habilites el alta pública para este uso interno.
@@ -24,7 +24,7 @@ Sitio estático para GitHub Pages, con inspecciones compartidas en Supabase. La 
 4. En **Project Settings > API** (o **Connect**, según la interfaz), copia la URL y la clave **publishable** a `assets/js/config.js`. La clave publishable está diseñada para usarse en el navegador porque las tablas tienen RLS. Nunca pongas una secret key ni `service_role` en el repositorio.
 5. En Authentication, agrega la URL final de GitHub Pages a **URL Configuration / Site URL** si usas enlaces de recuperación o confirmación por correo.
 
-Solo las cuentas presentes en `app_users` pueden ver y escribir registros. La pantalla de historial conserva cada versión de un registro; archivar quita la semana de la lista activa, pero no borra su historial.
+Solo las cuentas presentes en `app_users` pueden ver y escribir registros. El campo `role` distingue `operator` y `admin`, pero las políticas actuales conceden a ambos el mismo acceso a las inspecciones; el propietario del proyecto se administra por separado en Supabase. La pantalla de historial conserva cada versión de un registro; archivar quita la semana de la lista activa, pero no borra su historial.
 
 ## Publicar GitHub Pages
 
